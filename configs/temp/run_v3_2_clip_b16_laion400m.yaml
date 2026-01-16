@@ -1,0 +1,42 @@
+cam:
+  enabled: false
+dataset:
+  batch_size: 8
+  category: screw
+  img_size: 224
+  name: mvtec
+  num_workers: 2
+  root: /media/jjack/Extreme SSD/dataset/mvtec
+eval:
+  pixel_fpr_limit: 0.3
+experiment:
+  name: final_compare_clip_b16_laion400m
+  seed: 0
+features:
+  backbone_cfg:
+    model_name: ViT-B-16
+    pretrained: laion400m_e32
+    type: openclip_vit
+  include_cls: false
+  normalize: l2
+  type: vit_patches
+inference:
+  device: cpu
+  type: faiss_cpu
+log:
+  backend: local
+memory:
+  K: 3000
+  dtype: fp16
+  type: kcenter
+postprocess:
+  blur_sigma: 4
+  threshold:
+    tpr: 0.99
+    type: fpr_at_tpr
+scoring:
+  image_agg: max
+  k: 1
+  type: knn_l2
+viz:
+  enabled: false

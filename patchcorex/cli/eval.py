@@ -38,8 +38,15 @@ from patchcorex.models.feature_extractors import (  # noqa: F401
 )
 from patchcorex.models.backbones import openclip, dinov2, dinov3, convnext, swinv2  # noqa: F401
 from patchcorex.inference import torch_knn, faiss_gpu, faiss_cpu  # noqa: F401
-from patchcorex.scoring import knn, mahalanobis, position_aware, manifold_1d, rsw_e, rrsw_e  # noqa: F401
+from patchcorex.scoring import knn, mahalanobis, position_aware, manifold_1d, rsw_e, rrsw_e, patchcore_reweight  # noqa: F401
 from patchcorex.scoring.dual import DualScorer
+
+
+def patchcore_image_score(patch_scores: torch.Tensor) -> torch.Tensor:
+    scores = patch_scores
+    while scores.dim() > 1:
+        scores = scores.max(dim=-1).values
+    return scores
 
 
 def build_run_dir(cfg: Dict[str, Any]) -> Path:
@@ -80,6 +87,7 @@ def main() -> None:
     loader = build_loader(cfg["dataset"], split="test", shuffle=False)
 
     scoring_cfg = cfg.get("scoring", {})
+    image_score_mode = scoring_cfg.get("image_score", "scorer")
 
     if dual_mode:
         seg_backend = build_inference_backend(cfg["inference"]["seg"], bank.seg.embeddings)
@@ -126,6 +134,8 @@ def main() -> None:
                 patch_scores, image_scores = scorer.score(patches, positions=positions, scr_features=scr_features)
             else:
                 patch_scores, image_scores = scorer.score(patches, positions=positions)
+        if image_score_mode == "patchcore":
+            image_scores = patchcore_image_score(patch_scores)
         all_scores.extend(image_scores.cpu().numpy().tolist())
         all_labels.extend(labels.numpy().tolist())
 

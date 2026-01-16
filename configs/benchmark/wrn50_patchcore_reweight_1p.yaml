@@ -1,0 +1,41 @@
+dataset:
+  batch_size: 8
+  category: capsule
+  img_size: 224
+  name: mvtec
+  num_workers: 2
+  root: /media/jjack/Extreme SSD/dataset/mvtec
+eval:
+  pixel_fpr_limit: 0.3
+experiment:
+  name: patchcore_wrn50_reweight_1p
+  seed: 0
+features:
+  align: bilinear
+  layers:
+  - layer2
+  - layer3
+  normalize: null
+  pool_kernel: 3
+  pool_padding: 1
+  pool_stride: 1
+  pretrained: true
+  type: wrn_multilayer
+  use_avgpool: true
+inference:
+  type: faiss_gpu
+memory:
+  dtype: fp32
+  percentage: 0.01
+  seed: 0
+  type: kcenter
+postprocess:
+  blur_sigma: 4
+  threshold:
+    tpr: 0.99
+    type: fpr_at_tpr
+scoring:
+  num_neighbors: 9
+  type: patchcore_reweight
+viz:
+  enabled: false

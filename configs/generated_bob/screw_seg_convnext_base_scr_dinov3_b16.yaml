@@ -1,0 +1,74 @@
+experiment:
+  name: mvtec_screw_seg_convnext_base_scr_dinov3_b16
+  seed: 0
+dataset:
+  name: mvtec
+  root: D:\tmp\anomaly\mvtec_AD
+  category: screw
+  img_size: 224
+  batch_size: 8
+  num_workers: 2
+features:
+  type: dual_backbone
+  seg:
+    layers:
+    - features.2
+    - features.3
+    backbone_cfg:
+      weights: default
+      type: convnext_base
+    align: bilinear
+    type: torchvision_multilayer
+    normalize: l2
+  scr:
+    scr_source: cls
+    scr_normalize: l2
+    backbone_cfg:
+      model_name: dinov3_vitb16
+      pretrained: true
+      repo: facebookresearch/dinov3
+      type: dinov3_vit
+    type: vit_scr
+memory:
+  seg:
+    type: full
+    dtype: fp16
+  scr:
+    type: full
+    dtype: fp16
+scoring:
+  seg:
+    type: knn_l2
+    k: 1
+    image_agg: max
+  scr:
+    type: knn_l2
+    k: 1
+    image_agg: max
+inference:
+  seg:
+    type: torch_knn
+    device: cuda
+  scr:
+    type: torch_knn
+    device: cuda
+postprocess:
+  blur_sigma: 4
+  threshold:
+    type: fpr_at_tpr
+    tpr: 0.99
+eval:
+  pixel_fpr_limit: 0.3
+profile:
+  measure_vram: true
+  measure_latency: true
+log:
+  backend: local
+viz:
+  enabled: true
+  topk: 8
+  alpha: 0.5
+cam:
+  enabled: false
+  topk: 8
+  alpha: 0.5

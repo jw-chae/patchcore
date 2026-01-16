@@ -1,0 +1,46 @@
+experiment:
+  name: mvtec_vit_b16_laion400m_e32_kcenter
+  seed: 0
+dataset:
+  name: mvtec
+  root: D:\\tmp\\anomaly\\mvtec_AD
+  category: screw
+  img_size: 224
+  batch_size: 8
+  num_workers: 2
+backbone:
+  type: openclip_vit
+  model_name: ViT-B-16
+  pretrained: laion400m_e32
+features:
+  type: vit_patches
+  include_cls: false
+  normalize: l2
+memory:
+  type: kcenter
+  K: 196
+  seed: 0
+  dtype: fp16
+scoring:
+  type: mahalanobis
+  shrinkage: 1e-5
+  image_agg: max
+inference:
+  type: torch_knn
+  device: cuda
+postprocess:
+  blur_sigma: 4
+  threshold:
+    type: fpr_at_tpr
+    tpr: 0.99
+eval:
+  pixel_fpr_limit: 0.3
+profile:
+  measure_vram: true
+  measure_latency: true
+log:
+  backend: local
+viz:
+  enabled: true
+  topk: 8
+  alpha: 0.5

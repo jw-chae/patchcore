@@ -31,7 +31,8 @@ from patchcorex.models.feature_extractors import (  # noqa: F401
     torchvision_scr,
 )
 from patchcorex.models.backbones import openclip, dinov2, dinov3, convnext, swinv2  # noqa: F401
-from patchcorex.memory.builders import full, kcenter, random, reservoir, rsw_e, rrsw_e  # noqa: F401
+from patchcorex.memory.builders import approx_greedy_coreset, full, kcenter, random, reservoir, rsw_e, rrsw_e  # noqa: F401
+from patchcorex.scoring import patchcore_reweight  # noqa: F401
 
 
 def build_run_dir(cfg: Dict[str, Any]) -> Path:

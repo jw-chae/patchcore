@@ -1,47 +1,20 @@
 from __future__ import annotations
 
-from typing import Dict, Tuple
+from typing import Dict
 
 import numpy as np
 
-
-def _binary_clf_curve(scores: np.ndarray, labels: np.ndarray):
-    order = np.argsort(scores)[::-1]
-    scores = scores[order]
-    labels = labels[order]
-    pos = labels == 1
-    neg = labels == 0
-    tp = np.cumsum(pos)
-    fp = np.cumsum(neg)
-    return fp, tp
-
-
-def roc_curve(scores: np.ndarray, labels: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-    fp, tp = _binary_clf_curve(scores, labels)
-    tpr = tp / max(tp[-1], 1)
-    fpr = fp / max(fp[-1], 1)
-    return fpr, tpr
-
-
-def auc_from_curve(x: np.ndarray, y: np.ndarray) -> float:
-    return float(np.trapz(y, x))
-
-
-def average_precision(scores: np.ndarray, labels: np.ndarray) -> float:
-    order = np.argsort(scores)[::-1]
-    labels = labels[order]
-    tp = np.cumsum(labels == 1)
-    fp = np.cumsum(labels == 0)
-    precision = tp / np.maximum(tp + fp, 1)
-    recall = tp / max(tp[-1], 1)
-    return float(np.trapz(precision, recall))
+try:
+    from sklearn import metrics as sk_metrics
+except ImportError as exc:  # pragma: no cover - expected to be available in ad_env
+    raise ImportError("scikit-learn is required for PatchCore metrics alignment.") from exc
 
 
 def image_metrics(scores: np.ndarray, labels: np.ndarray) -> Dict[str, float]:
-    fpr, tpr = roc_curve(scores, labels)
+    fpr, tpr, _ = sk_metrics.roc_curve(labels, scores)
     return {
-        "auroc": auc_from_curve(fpr, tpr),
-        "ap": average_precision(scores, labels),
+        "auroc": float(sk_metrics.roc_auc_score(labels, scores)),
+        "ap": float(sk_metrics.average_precision_score(labels, scores)),
     }
 
 
@@ -66,9 +39,9 @@ def industrial_metrics(scores: np.ndarray, labels: np.ndarray, threshold: float 
 def pixel_metrics(maps: np.ndarray, masks: np.ndarray, fpr_limit: float = 0.3) -> Dict[str, float]:
     scores = maps.reshape(-1).astype(np.float32)
     labels = (masks.reshape(-1) > 0.5).astype(np.int64)
-    fpr, tpr = roc_curve(scores, labels)
-    auroc = auc_from_curve(fpr, tpr)
-    ap = average_precision(scores, labels)
+    fpr, tpr, _ = sk_metrics.roc_curve(labels, scores)
+    auroc = float(sk_metrics.roc_auc_score(labels, scores))
+    ap = float(sk_metrics.average_precision_score(labels, scores))
 
     limit = float(fpr_limit)
     if limit <= 0:

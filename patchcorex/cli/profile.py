@@ -33,7 +33,7 @@ from patchcorex.models.feature_extractors import (  # noqa: F401
 )
 from patchcorex.models.backbones import openclip, dinov2, dinov3, convnext, swinv2  # noqa: F401
 from patchcorex.inference import torch_knn, faiss_gpu, faiss_cpu  # noqa: F401
-from patchcorex.scoring import knn, mahalanobis, position_aware, manifold_1d, rsw_e, rrsw_e  # noqa: F401
+from patchcorex.scoring import knn, mahalanobis, position_aware, manifold_1d, rsw_e, rrsw_e, patchcore_reweight  # noqa: F401
 from patchcorex.scoring.dual import DualScorer
 
 

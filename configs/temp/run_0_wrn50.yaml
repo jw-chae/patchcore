@@ -1,0 +1,41 @@
+cam:
+  enabled: false
+dataset:
+  batch_size: 8
+  category: screw
+  img_size: 224
+  name: mvtec
+  num_workers: 2
+  root: /media/jjack/Extreme SSD/dataset/mvtec
+eval:
+  pixel_fpr_limit: 0.3
+experiment:
+  name: compare_wrn50
+  seed: 0
+features:
+  backbone_cfg:
+    type: wrn50_2
+  layers:
+  - layer2
+  - layer3
+  type: torchvision_multilayer
+inference:
+  device: cuda
+  type: torch_knn
+log:
+  backend: local
+memory:
+  K: 3000
+  dtype: fp16
+  type: kcenter
+postprocess:
+  blur_sigma: 4
+  threshold:
+    tpr: 0.99
+    type: fpr_at_tpr
+scoring:
+  image_agg: max
+  k: 1
+  type: knn_l2
+viz:
+  enabled: false

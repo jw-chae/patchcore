@@ -1,0 +1,79 @@
+{
+  "experiment": {
+    "name": "mvtec_wrn_vit_dual_scrcls_fp1k50",
+    "seed": 0
+  },
+  "dataset": {
+    "name": "mvtec",
+    "root": "D:\\tmp\\anomaly\\mvtec_AD",
+    "category": "grid",
+    "img_size": 224,
+    "batch_size": 8,
+    "num_workers": 2
+  },
+  "features": {
+    "type": "hybrid_dual",
+    "seg_layers": [
+      "layer2",
+      "layer3"
+    ],
+    "seg_align": "bilinear",
+    "seg_normalize": "l2",
+    "seg_pretrained": true,
+    "scr_backbone_cfg": {
+      "type": "openclip_vit",
+      "model_name": "ViT-B-16",
+      "pretrained": "laion400m_e32"
+    },
+    "scr_normalize": "l2",
+    "scr_source": "cls"
+  },
+  "memory": {
+    "seg": {
+      "type": "full",
+      "dtype": "fp16"
+    },
+    "scr": {
+      "type": "full",
+      "dtype": "fp16"
+    }
+  },
+  "scoring": {
+    "seg": {
+      "type": "knn_l2",
+      "k": 1,
+      "image_agg": "max"
+    },
+    "scr": {
+      "type": "knn_l2",
+      "k": 1,
+      "image_agg": "none"
+    }
+  },
+  "inference": {
+    "seg": {
+      "type": "torch_knn",
+      "device": "cuda"
+    },
+    "scr": {
+      "type": "torch_knn",
+      "device": "cuda"
+    }
+  },
+  "postprocess": {
+    "blur_sigma": 4,
+    "threshold": {
+      "type": "fp_per_1k",
+      "value": 50
+    }
+  },
+  "eval": {
+    "pixel_fpr_limit": 0.3
+  },
+  "viz": {
+    "enabled": false
+  },
+  "cam": {
+    "enabled": false
+  }
+}

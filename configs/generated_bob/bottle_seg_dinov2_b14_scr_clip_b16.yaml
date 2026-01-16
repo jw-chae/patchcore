@@ -1,0 +1,71 @@
+experiment:
+  name: mvtec_bottle_seg_dinov2_b14_scr_clip_b16
+  seed: 0
+dataset:
+  name: mvtec
+  root: D:\tmp\anomaly\mvtec_AD
+  category: bottle
+  img_size: 224
+  batch_size: 8
+  num_workers: 2
+features:
+  type: dual_backbone
+  seg:
+    normalize: l2
+    backbone_cfg:
+      model_name: dinov2_vitb14
+      pretrained: true
+      type: dinov2_vit
+    type: vit_patches
+    include_cls: false
+  scr:
+    scr_source: cls
+    scr_normalize: l2
+    backbone_cfg:
+      model_name: ViT-B-16
+      pretrained: laion400m_e32
+      type: openclip_vit
+    type: vit_scr
+memory:
+  seg:
+    type: full
+    dtype: fp16
+  scr:
+    type: full
+    dtype: fp16
+scoring:
+  seg:
+    type: knn_l2
+    k: 1
+    image_agg: max
+  scr:
+    type: knn_l2
+    k: 1
+    image_agg: max
+inference:
+  seg:
+    type: torch_knn
+    device: cuda
+  scr:
+    type: torch_knn
+    device: cuda
+postprocess:
+  blur_sigma: 4
+  threshold:
+    type: fpr_at_tpr
+    tpr: 0.99
+eval:
+  pixel_fpr_limit: 0.3
+profile:
+  measure_vram: true
+  measure_latency: true
+log:
+  backend: local
+viz:
+  enabled: true
+  topk: 8
+  alpha: 0.5
+cam:
+  enabled: false
+  topk: 8
+  alpha: 0.5

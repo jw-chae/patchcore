@@ -1,0 +1,61 @@
+experiment:
+  name: mvtec_wrn50_2_dual_knn
+  seed: 0
+dataset:
+  name: mvtec
+  root: D:\\tmp\\anomaly\\mvtec_AD
+  category: screw
+  img_size: 224
+backbone:
+  type: wrn50_2
+features:
+  type: wrn_dual
+  seg_layers: [layer2, layer3]
+  scr_layer: layer4
+  align: bilinear
+  seg_normalize: l2
+  scr_normalize: l2
+  scr_pool: avg
+memory:
+  seg:
+    type: full
+    dtype: fp16
+  scr:
+    type: full
+    dtype: fp16
+scoring:
+  seg:
+    type: knn_l2
+    k: 1
+    image_agg: max
+  scr:
+    type: knn_l2
+    k: 1
+    image_agg: max
+inference:
+  seg:
+    type: torch_knn
+    device: cuda
+  scr:
+    type: torch_knn
+    device: cuda
+postprocess:
+  blur_sigma: 4
+  threshold:
+    type: fpr_at_tpr
+    tpr: 0.99
+eval:
+  include_industrial: true
+profile:
+  measure_vram: true
+  measure_latency: true
+log:
+  backend: local
+viz:
+  enabled: true
+  topk: 8
+  alpha: 0.5
+cam:
+  enabled: true
+  topk: 8
+  alpha: 0.5

@@ -21,7 +21,7 @@ from patchcorex.models.feature_extractors import (  # noqa: F401
 )
 from patchcorex.models.backbones import openclip, dinov2, dinov3, convnext, swinv2  # noqa: F401
 from patchcorex.memory.builders import full, kcenter, random, reservoir, rsw_e, rrsw_e  # noqa: F401
-from patchcorex.scoring import knn, mahalanobis, position_aware, manifold_1d, rsw_e, rrsw_e  # noqa: F401
+from patchcorex.scoring import knn, mahalanobis, position_aware, manifold_1d, rsw_e, rrsw_e, patchcore_reweight  # noqa: F401
 from patchcorex.inference import torch_knn, faiss_gpu, faiss_cpu  # noqa: F401
 
 
@@ -134,6 +134,7 @@ def main() -> None:
             "scoring.manifold_1d": {"neighbor_rank": 1, "image_agg": "max", "normalize_l2": False},
             "scoring.rsw_e": {"num_dirs": 16, "num_quantiles": 20, "seed": 0, "image_agg": "min"},
             "scoring.rrsw_e": {"num_dirs": 16, "num_quantiles": 20, "seed": 0, "image_agg": "min"},
+            "scoring.patchcore_reweight": {"num_neighbors": 9},
             "inference.torch_knn": {"device": "cuda", "normalize_l2": False},
             "inference.faiss_gpu": {},
             "inference.faiss_cpu": {},

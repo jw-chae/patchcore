@@ -21,13 +21,13 @@ class MVTecSample:
 
 @DATASETS.register("mvtec")
 class MVTecDataset(Dataset):
-    def __init__(self, root: str, category: str, split: str, img_size: int) -> None:
+    def __init__(self, root: str, category: str, split: str, img_size: int, resize: int | None = None) -> None:
         self.root = Path(root)
         self.category = category
         self.split = split
         self.img_size = img_size
-        self.transform = build_transforms(img_size)
-        self.mask_transform = build_mask_transforms(img_size)
+        self.transform = build_transforms(img_size, resize=resize)
+        self.mask_transform = build_mask_transforms(img_size, resize=resize)
         self.samples = self._discover()
 
     def _discover(self) -> List[MVTecSample]:

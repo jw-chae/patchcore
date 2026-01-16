@@ -1,0 +1,59 @@
+dataset:
+  batch_size: 8
+  category: screw
+  img_size: 224
+  name: mvtec
+  num_workers: 2
+  root: /media/jjack/Extreme SSD/dataset/mvtec
+eval:
+  pixel_fpr_limit: 0.3
+experiment:
+  name: bench_dinov2_vitb14_k512viz
+  seed: 0
+features:
+  backbone_cfg:
+    model_name: dinov2_vitb14
+    pretrained: true
+    token_layer: 6
+    type: dinov2_vit
+  scr_normalize: l2
+  scr_source: cls
+  seg_normalize: l2
+  type: vit_dual
+inference:
+  scr:
+    device: cuda
+    type: faiss_gpu
+  seg:
+    device: cuda
+    type: faiss_gpu
+log:
+  backend: local
+memory:
+  scr:
+    dtype: fp16
+    type: full
+  seg:
+    K: 512
+    dtype: fp16
+    type: kcenter
+postprocess:
+  blur_sigma: 4
+  threshold:
+    tpr: 0.99
+    type: fpr_at_tpr
+scoring:
+  scr:
+    image_agg: max
+    k: 1
+    type: knn_l2
+  seg:
+    image_agg: topk_mean
+    image_topk_ratio: 0.01
+    k: 1
+    type: knn_l2
+  use_seg_image: true
+viz:
+  alpha: 0.5
+  enabled: true
+  topk: 8

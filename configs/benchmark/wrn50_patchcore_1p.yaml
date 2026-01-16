@@ -1,0 +1,39 @@
+dataset:
+  batch_size: 8
+  category: screw
+  img_size: 224
+  name: mvtec
+  num_workers: 2
+  root: /media/jjack/Extreme SSD/dataset/mvtec
+eval:
+  pixel_fpr_limit: 0.3
+experiment:
+  name: patchcore_wrn50_coreset1p
+  seed: 0
+features:
+  align: bilinear
+  layers:
+  - layer2
+  - layer3
+  normalize: l2
+  pretrained: true
+  type: wrn_multilayer
+inference:
+  normalize_l2: false
+  type: faiss_gpu
+memory:
+  dtype: fp32
+  percentage: 0.01
+  seed: 0
+  type: kcenter
+postprocess:
+  blur_sigma: 4
+  threshold:
+    tpr: 0.99
+    type: fpr_at_tpr
+scoring:
+  image_agg: max
+  k: 1
+  type: knn_l2
+viz:
+  enabled: false

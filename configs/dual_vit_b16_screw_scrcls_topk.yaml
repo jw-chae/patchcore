@@ -1,0 +1,65 @@
+experiment:
+  name: mvtec_vit_b16_dual_scrcls_topk
+  seed: 0
+dataset:
+  name: mvtec
+  root: D:\\tmp\\anomaly\\mvtec_AD
+  category: screw
+  img_size: 224
+  batch_size: 8
+  num_workers: 2
+backbone:
+  type: openclip_vit
+  model_name: ViT-B-16
+  pretrained: laion400m_e32
+features:
+  type: vit_dual
+  seg_normalize: l2
+  scr_normalize: l2
+  scr_source: cls
+memory:
+  seg:
+    type: full
+    dtype: fp16
+  scr:
+    type: full
+    dtype: fp16
+scoring:
+  seg:
+    type: knn_l2
+    k: 1
+    image_agg: max
+  scr:
+    type: knn_l2
+    k: 1
+    image_agg: none
+inference:
+  seg:
+    type: torch_knn
+    device: cuda
+  scr:
+    type: torch_knn
+    device: cuda
+postprocess:
+  blur_sigma: 2
+  topk_pool:
+    kernel: 5
+    topk: 5
+  threshold:
+    type: fpr_at_tpr
+    tpr: 0.99
+eval:
+  pixel_fpr_limit: 0.3
+profile:
+  measure_vram: true
+  measure_latency: true
+log:
+  backend: local
+viz:
+  enabled: true
+  topk: 8
+  alpha: 0.5
+cam:
+  enabled: true
+  topk: 8
+  alpha: 0.5

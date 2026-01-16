@@ -3,9 +3,15 @@ from __future__ import annotations
 from typing import Tuple
 
 import math
+import numpy as np
 import torch
 import torch.nn.functional as F
 from torchvision.transforms.functional import gaussian_blur
+
+try:
+    import scipy.ndimage as ndimage
+except ImportError:
+    ndimage = None
 
 
 def patches_to_map(patch_scores: torch.Tensor, grid_shape: Tuple[int, int], img_size: int) -> torch.Tensor:
@@ -21,8 +27,16 @@ def patches_to_map(patch_scores: torch.Tensor, grid_shape: Tuple[int, int], img_
 def blur_map(anomaly_map: torch.Tensor, sigma: float) -> torch.Tensor:
     if sigma <= 0:
         return anomaly_map
-    k = int(max(3, 2 * math.ceil(2 * sigma) + 1))
-    return gaussian_blur(anomaly_map, [k, k], sigma=[sigma, sigma])
+    if ndimage is None:
+        k = int(max(3, 2 * math.ceil(2 * sigma) + 1))
+        return gaussian_blur(anomaly_map, [k, k], sigma=[sigma, sigma])
+    device = anomaly_map.device
+    maps = anomaly_map.detach().cpu().numpy()
+    blurred = np.empty_like(maps)
+    for i in range(maps.shape[0]):
+        for c in range(maps.shape[1]):
+            blurred[i, c] = ndimage.gaussian_filter(maps[i, c], sigma=sigma)
+    return torch.from_numpy(blurred).to(device)
 
 
 def topk_pool_map(anomaly_map: torch.Tensor, kernel: int, topk: int) -> torch.Tensor:

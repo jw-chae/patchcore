@@ -24,13 +24,19 @@ class KNNScorer:
         self.image_topk_ratio = float(image_topk_ratio)
 
     def score(self, patches: torch.Tensor, positions: torch.Tensor | None = None) -> Tuple[torch.Tensor, torch.Tensor]:
+        def _knn_reduce(distances: torch.Tensor) -> torch.Tensor:
+            if distances.ndim == 1:
+                distances = distances.unsqueeze(1)
+            if self.k == 1:
+                return distances[:, 0]
+            # For k>1, use mean of kNN distances (common PatchCore variant).
+            return distances.mean(dim=1)
+
         if patches.dim() == 2:
             b, d = patches.shape
             queries = patches
             distances = self.backend.query(queries, k=self.k)
-            if distances.ndim == 1:
-                distances = distances.unsqueeze(1)
-            image_scores = distances[:, 0]
+            image_scores = _knn_reduce(distances)
             patch_scores = image_scores.unsqueeze(1)
             if self.image_agg not in ("none", "max", "mean"):
                 raise KeyError(f"Unsupported image_agg: {self.image_agg}")
@@ -39,9 +45,7 @@ class KNNScorer:
         b, p, d = patches.shape
         queries = patches.reshape(b * p, d)
         distances = self.backend.query(queries, k=self.k)
-        if distances.ndim == 1:
-            distances = distances.unsqueeze(1)
-        patch_scores = distances[:, 0].reshape(b, p)
+        patch_scores = _knn_reduce(distances).reshape(b, p)
         if self.image_agg == "max":
             image_scores = patch_scores.max(dim=1).values
         elif self.image_agg == "mean":

@@ -1,0 +1,73 @@
+{
+  "experiment": {
+    "name": "mvtec_vit_b16_dual_scrattn_pool_fp1k200",
+    "seed": 0
+  },
+  "dataset": {
+    "name": "mvtec",
+    "root": "D:\\tmp\\anomaly\\mvtec_AD",
+    "category": "pill",
+    "img_size": 224,
+    "batch_size": 8,
+    "num_workers": 2
+  },
+  "backbone": {
+    "type": "openclip_vit",
+    "model_name": "ViT-B-16",
+    "pretrained": "laion400m_e32"
+  },
+  "features": {
+    "type": "vit_dual",
+    "seg_normalize": "l2",
+    "scr_normalize": "l2",
+    "scr_source": "attn_pool"
+  },
+  "memory": {
+    "seg": {
+      "type": "full",
+      "dtype": "fp16"
+    },
+    "scr": {
+      "type": "full",
+      "dtype": "fp16"
+    }
+  },
+  "scoring": {
+    "seg": {
+      "type": "knn_l2",
+      "k": 1,
+      "image_agg": "max"
+    },
+    "scr": {
+      "type": "knn_l2",
+      "k": 1,
+      "image_agg": "none"
+    }
+  },
+  "inference": {
+    "seg": {
+      "type": "torch_knn",
+      "device": "cuda"
+    },
+    "scr": {
+      "type": "torch_knn",
+      "device": "cuda"
+    }
+  },
+  "postprocess": {
+    "blur_sigma": 4,
+    "threshold": {
+      "type": "fp_per_1k",
+      "value": 200
+    }
+  },
+  "eval": {
+    "pixel_fpr_limit": 0.3
+  },
+  "viz": {
+    "enabled": false
+  },
+  "cam": {
+    "enabled": false
+  }
+}

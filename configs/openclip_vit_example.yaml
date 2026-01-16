@@ -1,0 +1,8 @@
+backbone:
+  type: openclip_vit
+  model_name: ViT-L-14
+  pretrained: auto
+features:
+  type: vit_patches
+  include_cls: false
+  normalize: l2
