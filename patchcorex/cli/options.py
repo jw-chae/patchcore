@@ -10,6 +10,7 @@ from patchcorex.data.datasets import mvtec  # noqa: F401
 from patchcorex.models.feature_extractors import (  # noqa: F401
     wrn_multilayer,
     vit_patches,
+    vit_patchcore,
     vit_dual,
     vit_scr,
     wrn_scr,
@@ -69,6 +70,13 @@ def main() -> None:
                 "include_cls": False,
                 "normalize": "l2",
                 "backbone_cfg": {"type": "openclip_vit", "model_name": "ViT-L-14", "pretrained": "auto"},
+            },
+            "features.vit_patchcore": {
+                "token_source": "patch",
+                "normalize": None,
+                "pretrain_embed_dimension": 768,
+                "target_embed_dimension": 768,
+                "backbone_cfg": {"type": "dinov2_vit", "model_name": "dinov2_vitb14", "pretrained": True, "token_layer": 6},
             },
             "features.vit_dual": {
                 "seg_normalize": "l2",

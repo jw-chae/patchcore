@@ -1,0 +1,42 @@
+dataset:
+  batch_size: 8
+  category: screw
+  img_size: 224
+  name: mvtec
+  num_workers: 2
+  resize: 256
+  root: /media/jjack/Extreme SSD/dataset/mvtec
+eval:
+  pixel_fpr_limit: 0.3
+experiment:
+  name: patchcore_dinov2_vitb14_official_1p
+  seed: 0
+features:
+  backbone_cfg:
+    model_name: dinov2_vitb14
+    pretrained: true
+    token_layer: 6
+    type: dinov2_vit
+  normalize: null
+  pretrain_embed_dimension: 768
+  target_embed_dimension: 768
+  token_source: patch
+  type: vit_patchcore
+inference:
+  type: faiss_gpu
+memory:
+  dtype: fp32
+  percentage: 0.01
+  seed: 0
+  type: approx_greedy_coreset
+postprocess:
+  blur_sigma: 4
+  threshold:
+    tpr: 0.99
+    type: fpr_at_tpr
+scoring:
+  image_score: patchcore
+  num_neighbors: 1
+  type: knn_l2
+viz:
+  enabled: false

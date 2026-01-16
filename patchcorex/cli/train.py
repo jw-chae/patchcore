@@ -20,6 +20,7 @@ from patchcorex.data.datasets import mvtec  # noqa: F401
 from patchcorex.models.feature_extractors import (  # noqa: F401
     wrn_multilayer,
     vit_patches,
+    vit_patchcore,
     wrn_dual,
     vit_dual,
     vit_scr,
